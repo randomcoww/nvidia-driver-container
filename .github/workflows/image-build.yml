@@ -1,0 +1,57 @@
+# References:
+# https://some-natalie.dev/blog/kaniko-in-arc/
+# https://dev.to/ipo/using-kaniko-to-build-and-publish-container-image-with-github-action-on-github-self-hosted-runners-d5m
+
+name: Image Build
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*
+
+jobs:
+  build:
+    runs-on: arc-runner-nvidia-driver
+    container:
+      image: gcr.io/kaniko-project/executor:debug
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - name: Build and release container
+      run: |
+        set -xe
+
+        mkdir -p src
+        wget -O master.tar.gz \
+          https://github.com/NVIDIA/gpu-driver-container/tarball/master
+
+        tar xzf master.tar.gz --strip-components=1 -C src/
+        cd src/fedora
+
+        TARGETARCH=amd64
+        DRIVER_VERSION=565.77
+        KERNEL_TYPE=kernel-open
+        FEDORA_VERSION=41
+        BASE_URL=http://us.download.nvidia.com/XFree86/Linux-x86_64
+
+        cat > /kaniko/.docker/config.json <<EOF
+        {
+          "auths": {
+            "ghcr.io": {
+              "auth": "$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64 -w0)"
+            }
+          }
+        }
+        EOF
+
+        /kaniko/executor \
+          --dockerfile="./Dockerfile" \
+          --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+          --destination="ghcr.io/${{ github.repository }}:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH" \
+          --build-arg TARGETARCH=$TARGETARCH \
+          --build-arg FEDORA_VERSION=$FEDORA_VERSION \
+          --build-arg BASE_URL=$BASE_URL \
+          --build-arg DRIVER_VERSION=$DRIVER_VERSION \
+          --build-arg KERNEL_TYPE=$KERNEL_TYPE \
+          --push-retry 3
