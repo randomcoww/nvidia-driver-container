@@ -43,11 +43,9 @@ jobs:
         }
         EOF
 
-        sleep infinity
-
         /kaniko/executor \
           --dockerfile="./Dockerfile" \
-          --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+          --context="$(pwd)" \
           --destination="ghcr.io/${{ github.repository }}:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH" \
           --build-arg TARGETARCH=$TARGETARCH \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
