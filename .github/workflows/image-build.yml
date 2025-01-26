@@ -27,11 +27,6 @@ jobs:
         KERNEL_TYPE=kernel-open
         FEDORA_VERSION=41
         BASE_URL=http://us.download.nvidia.com/XFree86/Linux-x86_64
-        BRANCH=fedora-rebased-main
-
-        wget -O driver.tar.gz \
-          https://gitlab.com/container-toolkit-fcos/driver/-/archive/$BRANCH/driver-$BRANCH.tar.gz
-        tar xzf driver.tar.gz --strip-components=2 driver-$BRANCH/fedora -C .
 
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
@@ -44,8 +39,9 @@ jobs:
         EOF
 
         /kaniko/executor \
+          --context-sub-path="fedora" \
           --dockerfile="./Dockerfile" \
-          --context="$(pwd)" \
+          --context="git://gitlab.com/container-toolkit-fcos/driver.git#refs/heads/fedora-rebased-main" \
           --destination="ghcr.io/${{ github.repository }}:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH" \
           --build-arg TARGETARCH=$TARGETARCH \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
