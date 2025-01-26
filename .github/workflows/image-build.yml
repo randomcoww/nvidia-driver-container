@@ -22,6 +22,8 @@ jobs:
       run: |
         set -xe
 
+        sleep infinity
+
         TARGETARCH=amd64
         DRIVER_VERSION=565.77
         KERNEL_TYPE=kernel-open
@@ -29,10 +31,9 @@ jobs:
         BASE_URL=http://us.download.nvidia.com/XFree86/Linux-x86_64
         BRANCH=fedora-rebased-main
 
-        mkdir -p buildcontext
         wget -O driver.tar.gz \
           https://gitlab.com/container-toolkit-fcos/driver/-/archive/$BRANCH/driver-$BRANCH.tar.gz
-        tar xzf driver.tar.gz --strip-components=2 driver-$BRANCH/fedora -C buildcontext
+        tar xzf driver.tar.gz --strip-components=2 driver-$BRANCH/fedora -C .
 
         cat > /kaniko/.docker/config.json <<EOF
         {
