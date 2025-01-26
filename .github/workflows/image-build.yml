@@ -22,11 +22,10 @@ jobs:
       run: |
         set -xe
 
-        mkdir -p driver
         wget -O driver.tar.gz \
           https://gitlab.com/container-toolkit-fcos/driver/-/archive/fedora-rebased-main/driver-fedora-rebased-main.tar.gz
-        tar xzf driver.tar.gz --strip-components=1 -C driver/
-        cd driver/fedora
+        tar xzf driver.tar.gz --strip-components=2 driver-fedora-rebased-main/fedora -C .
+        rm -f driver.tar.gz
 
         TARGETARCH=amd64
         DRIVER_VERSION=565.77
