@@ -24,7 +24,7 @@ TARGETARCH=amd64
 DRIVER_VERSION=565.77
 KERNEL_TYPE=kernel-open
 FEDORA_VERSION=41
-BASE_URL=http://us.download.nvidia.com/XFree86/Linux-x86_64
+BASE_URL=https://us.download.nvidia.com/XFree86/Linux-x86_64
 TAG=ghcr.io/randomcoww/nvidia-driver:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH
 
 podman build \
