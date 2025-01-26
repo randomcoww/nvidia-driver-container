@@ -29,10 +29,10 @@ jobs:
         BASE_URL=http://us.download.nvidia.com/XFree86/Linux-x86_64
         BRANCH=fedora-rebased-main
 
+        cd /home/runner/_work
         wget -O driver.tar.gz \
           https://gitlab.com/container-toolkit-fcos/driver/-/archive/$BRANCH/driver-$BRANCH.tar.gz
         tar xzf driver.tar.gz --strip-components=2 driver-$BRANCH/fedora -C .
-        rm -f driver.tar.gz
 
         cat > /kaniko/.docker/config.json <<EOF
         {
