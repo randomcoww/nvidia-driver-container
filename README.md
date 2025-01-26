@@ -2,6 +2,10 @@
 
 https://github.com/NVIDIA/gpu-driver-container
 
+Modified for Fedora CoreOS
+
+https://gitlab.com/container-toolkit-fcos/driver
+
 Tag latest by date
 
 ```bash
