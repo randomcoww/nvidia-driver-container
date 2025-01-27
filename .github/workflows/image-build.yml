@@ -19,13 +19,11 @@ jobs:
       packages: write
     steps:
     - name: Build and release container
+      env:
+        DRIVER_VERSION: 565.77
+        KERNEL_TYPE: kernel-open
+        FEDORA_VERSION: 41
       run: |
-        TARGETARCH=amd64
-        DRIVER_VERSION=565.77
-        KERNEL_TYPE=kernel-open
-        FEDORA_VERSION=41
-        BASE_URL=https://us.download.nvidia.com/XFree86/Linux-x86_64
-
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
           "auths": {
@@ -35,6 +33,10 @@ jobs:
           }
         }
         EOF
+
+        BASE_URL=https://us.download.nvidia.com/XFree86/Linux-$(arch)
+        TARGETARCH=$(arch)
+        TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
 
         /kaniko/executor \
           --context-sub-path="fedora" \

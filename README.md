@@ -20,11 +20,12 @@ git push origin $TAG
 git clone https://github.com/NVIDIA/gpu-driver-container.git
 cd gpu-driver-container/fedora
 
-TARGETARCH=amd64
+TARGETARCH=$(arch)
+TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
 DRIVER_VERSION=565.77
 KERNEL_TYPE=kernel-open
 FEDORA_VERSION=41
-BASE_URL=https://us.download.nvidia.com/XFree86/Linux-x86_64
+BASE_URL=https://us.download.nvidia.com/XFree86/Linux-$(arch)
 TAG=ghcr.io/randomcoww/nvidia-driver:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH
 
 podman build \
