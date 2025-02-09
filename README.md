@@ -6,14 +6,6 @@ Modified for Fedora CoreOS
 
 https://gitlab.com/container-toolkit-fcos/driver
 
-Tag latest by date
-
-```bash
-TAG=v$(date -u +'%Y%m%d').1
-git tag -a $TAG
-git push origin $TAG
-```
-
 ### Manual build
 
 ```bash

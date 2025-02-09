@@ -5,9 +5,6 @@
 name: Image Build
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - v*
 
 jobs:
   build:
@@ -43,7 +40,7 @@ jobs:
           --context-sub-path="fedora" \
           --dockerfile="./Dockerfile" \
           --context="git://gitlab.com/container-toolkit-fcos/driver.git#refs/heads/fedora-rebased-main" \
-          --destination="ghcr.io/${{ github.repository }}:$DRIVER_VERSION-fedora$FEDORA_VERSION" \
+          --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION" \
           --build-arg TARGETARCH=$TARGETARCH \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
           --build-arg BASE_URL=$BASE_URL \
