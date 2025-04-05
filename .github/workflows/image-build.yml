@@ -6,6 +6,12 @@ name: Image Build
 on:
   workflow_dispatch:
 
+env:
+  DRIVER_VERSION: 570.86.15
+  KERNEL_TYPE: kernel-open
+  FEDORA_VERSION: 41
+  BASE_URL: https://us.download.nvidia.com/tesla
+
 jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
@@ -16,11 +22,6 @@ jobs:
       packages: write
     steps:
     - name: Build and release container
-      env:
-        DRIVER_VERSION: 570.86.15
-        KERNEL_TYPE: kernel-open
-        FEDORA_VERSION: 41
-        BASE_URL: https://us.download.nvidia.com/tesla
       run: |
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
