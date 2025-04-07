@@ -9,16 +9,16 @@ https://gitlab.com/container-toolkit-fcos/driver
 ### Manual build
 
 ```bash
-git clone https://github.com/NVIDIA/gpu-driver-container.git
-cd gpu-driver-container/fedora
-
+TAG=fedora-rebased-main-25.01.21
 TARGETARCH=$(arch)
 TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
-DRIVER_VERSION=565.77
-KERNEL_TYPE=kernel-open
+DRIVER_VERSION=570.124.06
+KERNEL_TYPE=kernel
 FEDORA_VERSION=41
-BASE_URL=https://us.download.nvidia.com/XFree86/Linux-$(arch)
-TAG=ghcr.io/randomcoww/nvidia-driver:$DRIVER_VERSION-f$FEDORA_VERSION-$TARGETARCH
+BASE_URL=https://us.download.nvidia.com/tesla
+
+git clone -b $TAG https://gitlab.com/container-toolkit-fcos/driver.git
+cd driver/fedora
 
 podman build \
   --arch $TARGETARCH \
@@ -28,9 +28,7 @@ podman build \
   --build-arg DRIVER_VERSION=$DRIVER_VERSION \
   --build-arg KERNEL_TYPE=$KERNEL_TYPE \
   -f Dockerfile \
-  -t $TAG
-
-podman push $TAG
+  -t ghcr.io/randomcoww/nvidia-driver:v$DRIVER_VERSION-fedora$FEDORA_VERSION
 ```
 
 Install to host

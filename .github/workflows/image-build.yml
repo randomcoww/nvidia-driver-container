@@ -12,6 +12,7 @@ env:
   FEDORA_VERSION: 41
   OPEN_KERNEL_MODULES_ENABLED: false
   BASE_URL: https://us.download.nvidia.com/tesla
+  TAG: fedora-rebased-main-25.01.21
 
 jobs:
   build:
@@ -43,7 +44,7 @@ jobs:
         /kaniko/executor \
           --context-sub-path="fedora" \
           --dockerfile="./Dockerfile" \
-          --context="git://gitlab.com/container-toolkit-fcos/driver.git#refs/heads/fedora-rebased-main" \
+          --context="git://gitlab.com/container-toolkit-fcos/driver.git#refs/heads/$TAG" \
           --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION" \
           --build-arg TARGETARCH=$TARGETARCH \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
