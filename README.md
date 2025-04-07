@@ -9,13 +9,16 @@ https://gitlab.com/container-toolkit-fcos/driver
 ### Manual build
 
 ```bash
-TAG=fedora-rebased-main-25.01.21
-TARGETARCH=$(arch)
-TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
 DRIVER_VERSION=570.124.06
 KERNEL_TYPE=kernel
 FEDORA_VERSION=41
 BASE_URL=https://us.download.nvidia.com/tesla
+TAG=fedora-rebased-main-25.01.21
+
+TARGETARCH=$(arch)
+## Use geforce driver
+# BASE_URL=https://us.download.nvidia.com/XFree86/${TARGETARCH/x86_64/Linux-x86_64}
+TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
 
 git clone -b $TAG https://gitlab.com/container-toolkit-fcos/driver.git
 cd driver/fedora
