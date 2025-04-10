@@ -13,7 +13,7 @@ FEDORA_VERSION=41
 DRIVER_VERSION=570.124.06
 KERNEL_TYPE=kernel
 BASE_URL=https://us.download.nvidia.com/tesla
-TAG=$(curl -s https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r '.[0] | .name')
+TAG=$(curl -s https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r 'first(.[] | select(.name | endswith("-fedora"))).name')
 
 TARGETARCH=$(arch)
 ## Use geforce driver
