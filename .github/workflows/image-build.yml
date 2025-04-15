@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  FEDORA_VERSION: 41
+  FEDORA_VERSION: 42
   DRIVER_VERSION: 570.124.06
   KERNEL_TYPE: kernel
   OPEN_KERNEL_MODULES_ENABLED: false
