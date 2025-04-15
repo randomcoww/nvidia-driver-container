@@ -9,8 +9,8 @@ on:
 env:
   FEDORA_VERSION: 42
   DRIVER_VERSION: 570.124.06
-  KERNEL_TYPE: kernel
-  OPEN_KERNEL_MODULES_ENABLED: false
+  KERNEL_TYPE: kernel-open
+  OPEN_KERNEL_MODULES_ENABLED: true
   BASE_URL: https://us.download.nvidia.com/tesla
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
           --context-sub-path="fedora" \
           --dockerfile="./Dockerfile" \
           --context="git://gitlab.com/container-toolkit-fcos/driver.git#$TAG" \
-          --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION" \
+          --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION-$KERNEL_TYPE" \
           --build-arg TARGETARCH=$TARGETARCH \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
           --build-arg BASE_URL=$BASE_URL \
