@@ -8,7 +8,7 @@ on:
 
 env:
   FEDORA_VERSION: 42
-  DRIVER_VERSION: 570.148.08
+  DRIVER_VERSION: 575.57.08
   KERNEL_TYPE: kernel-open
   BASE_URL: https://us.download.nvidia.com/tesla
 
