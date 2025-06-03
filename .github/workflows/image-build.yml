@@ -31,7 +31,7 @@ jobs:
         wget -O jq https://github.com/jqlang/jq/releases/download/$JQ_VERSION/jq-linux-$TARGETARCH
         chmod +x jq
 
-        GOLANG_VERSION=$(wget -O - https://api.github.com/repos/golang/go/git/refs/tags | jq -r 'last(.[] | select(.ref | startswith("refs/tags/go"))).ref' | tr -d "refs/tags/go")
+        GOLANG_VERSION=$(wget -O - https://api.github.com/repos/golang/go/git/refs/tags | ./jq -r 'last(.[] | select(.ref | startswith("refs/tags/go"))).ref' | tr -d "refs/tags/go")
         echo GOLANG_VERSION=$GOLANG_VERSION | tee -a "$GITHUB_ENV"
 
         echo TAG=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | ./jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
