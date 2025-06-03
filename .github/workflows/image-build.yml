@@ -31,6 +31,9 @@ jobs:
         wget -O jq https://github.com/jqlang/jq/releases/download/$JQ_VERSION/jq-linux-$TARGETARCH
         chmod +x jq
 
+        GOLANG_VERSION=$(wget -O - https://api.github.com/repos/golang/go/git/refs/tags | jq -r 'last(.[] | select(.ref | startswith("refs/tags/go"))).ref' | tr -d "refs/tags/go")
+        echo GOLANG_VERSION=$GOLANG_VERSION | tee -a "$GITHUB_ENV"
+
         echo TAG=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | ./jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
         echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
 
@@ -52,6 +55,7 @@ jobs:
           --context="git://gitlab.com/container-toolkit-fcos/driver.git#$TAG" \
           --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION-$KERNEL_TYPE" \
           --build-arg TARGETARCH=$TARGETARCH \
+          --build-arg GOLANG_VERSION=$GOLANG_VERSION \
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
           --build-arg BASE_URL=$BASE_URL \
           --build-arg DRIVER_VERSION=$DRIVER_VERSION \
