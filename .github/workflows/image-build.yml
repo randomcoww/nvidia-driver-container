@@ -4,11 +4,13 @@
 
 name: Image Build
 on:
-  workflow_dispatch:
+  push:
+    tags:
+    - "*"
 
 env:
   FEDORA_VERSION: 42
-  DRIVER_VERSION: 570.169
+  DRIVER_VERSION: ${{ github.head_ref || github.ref_name }}
   # BASE_URL: https://us.download.nvidia.com/tesla
 
 jobs:
