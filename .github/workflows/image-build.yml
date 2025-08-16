@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      image: gcr.io/kaniko-project/executor:debug
+      image: ghcr.io/randomcoww/kaniko:debug
     permissions:
       contents: read
       packages: write
@@ -40,6 +40,7 @@ jobs:
 
     - name: Build and release container
       run: |
+        mkdir -p $DOCKER_CONFIG
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
           "auths": {
@@ -60,6 +61,7 @@ jobs:
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
           --build-arg DRIVER_VERSION=$DRIVER_VERSION \
           --build-arg BASE_URL=$BASE_URL \
+          --cache \
           --push-retry 3
   cleanup:
     needs:
