@@ -1,4 +1,6 @@
-### Container to build and deploy Nvidia drivers to host
+### Container for Nvidia Geforce driver
+
+Pass Geforce URL to build drivers using official Containerfile
 
 https://github.com/NVIDIA/gpu-driver-container
 
