@@ -1,10 +1,10 @@
-### Container for Nvidia Geforce driver
+### Container build for Nvidia Geforce driver
 
-Pass Geforce URL to build drivers using official Containerfile
+Pass Geforce URL to build drivers using official build
 
 https://github.com/NVIDIA/gpu-driver-container
 
-Modified for Fedora CoreOS
+or modified version for Fedora CoreOS
 
 https://gitlab.com/container-toolkit-fcos/driver
 
