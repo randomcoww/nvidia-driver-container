@@ -61,7 +61,6 @@ jobs:
           --build-arg FEDORA_VERSION=$FEDORA_VERSION \
           --build-arg DRIVER_VERSION=$DRIVER_VERSION \
           --build-arg BASE_URL=$BASE_URL \
-          --cache \
           --push-retry 3
   cleanup:
     needs:
