@@ -1,0 +1,110 @@
+diff --git a/fedora/nvidia-driver b/fedora/nvidia-driver
+index b42ee75..9e83246 100755
+--- a/fedora/nvidia-driver
++++ b/fedora/nvidia-driver
+@@ -11,6 +11,7 @@ KOJI_BASE_URL=https://kojipkgs.fedoraproject.org
+ NUM_VGPU_DEVICES=0
+ NVIDIA_MODULE_PARAMS=()
+ NVIDIA_UVM_MODULE_PARAMS=()
++NVIDIA_DRM_MODULE_PARAMS=()
+ NVIDIA_MODESET_MODULE_PARAMS=()
+ NVIDIA_PEERMEM_MODULE_PARAMS=()
+ TARGETARCH=${TARGETARCH:?"Missing TARGETARCH env"}
+@@ -229,6 +230,7 @@ _create_driver_package() (
+     local nvidia_sign_args=""
+     local nvidia_modeset_sign_args=""
+     local nvidia_uvm_sign_args=""
++    local nvidia_drm_sign_args=""
+ 
+     trap "make -s -j ${MAX_THREADS} SYSSRC=/lib/modules/${KERNEL_VERSION}/build clean > /dev/null" EXIT
+ 
+@@ -262,9 +264,11 @@ _create_driver_package() (
+         donkey get ${PRIVATE_KEY} sh -c "PATH=${PATH}:/usr/src/linux-headers-${KERNEL_VERSION}/scripts && \
+           sign-file sha512 \$DONKEY_FILE pubkey.x509 nvidia.ko nvidia.ko.sign &&                          \
+           sign-file sha512 \$DONKEY_FILE pubkey.x509 nvidia-modeset.ko nvidia-modeset.ko.sign &&          \
+-          sign-file sha512 \$DONKEY_FILE pubkey.x509 nvidia-uvm.ko"
++          sign-file sha512 \$DONKEY_FILE pubkey.x509 nvidia-uvm.ko &&                                     \
++          sign-file sha512 \$DONKEY_FILE pubkey.x509 nvidia-drm.ko"
+         nvidia_sign_args="--linked-module nvidia.ko --signed-module nvidia.ko.sign"
+         nvidia_modeset_sign_args="--linked-module nvidia-modeset.ko --signed-module nvidia-modeset.ko.sign"
++        nvidia_drm_sign_args="--signed"
+         nvidia_uvm_sign_args="--signed"
+     fi
+ 
+@@ -284,6 +288,9 @@ _create_driver_package() (
+                                         --target-directory .                                         \
+                                         --kernel-module nvidia-uvm.ko                                \
+                                         ${nvidia_uvm_sign_args}                                      \
++                                        --target-directory .                                         \
++                                        --kernel-module nvidia-drm.ko                                \
++                                        ${nvidia_drm_sign_args}                                      \
+                                         --target-directory .
+     mkdir -p precompiled
+     mv ${pkg_name} precompiled
+@@ -349,6 +356,13 @@ _get_module_params() {
+        done <"${base_path}/nvidia-uvm.conf"
+        echo "Module parameters provided for nvidia-uvm: ${NVIDIA_UVM_MODULE_PARAMS[@]}"
+     fi
++    # nvidia-drm
++    if [ -f "${base_path}/nvidia-drm.conf" ]; then
++       while IFS="" read -r param || [ -n "$param" ]; do
++           NVIDIA_DRM_MODULE_PARAMS+=("$param")
++       done <"${base_path}/nvidia-drm.conf"
++       echo "Module parameters provided for nvidia-drm: ${NVIDIA_DRM_MODULE_PARAMS[@]}"
++    fi
+     # nvidia-modeset
+     if [ -f "${base_path}/nvidia-modeset.conf" ]; then
+        while IFS="" read -r param || [ -n "$param" ]; do
+@@ -406,6 +420,7 @@ _load_driver() {
+     set -o xtrace +o nounset
+     modprobe nvidia "${NVIDIA_MODULE_PARAMS[@]}"
+     modprobe nvidia-uvm "${NVIDIA_UVM_MODULE_PARAMS[@]}"
++    modprobe nvidia-drm "${NVIDIA_DRM_MODULE_PARAMS[@]}"
+     modprobe nvidia-modeset "${NVIDIA_MODESET_MODULE_PARAMS[@]}"
+     set +o xtrace -o nounset
+ 
+@@ -458,6 +473,7 @@ _unload_driver() {
+     local nvidia_deps=0
+     local nvidia_refs=0
+     local nvidia_uvm_refs=0
++    local nvidia_drm_refs=0
+     local nvidia_modeset_refs=0
+     local nvidia_peermem_refs=0
+ 
+@@ -527,6 +543,11 @@ _unload_driver() {
+         rmmod_args+=("nvidia-modeset")
+         ((++nvidia_deps))
+     fi
++    if [ -f /sys/module/nvidia_drm/refcnt ]; then
++        nvidia_drm_refs=$(< /sys/module/nvidia_drm/refcnt)
++        rmmod_args+=("nvidia-drm")
++        ((++nvidia_deps))
++    fi
+     if [ -f /sys/module/nvidia_uvm/refcnt ]; then
+         nvidia_uvm_refs=$(< /sys/module/nvidia_uvm/refcnt)
+         rmmod_args+=("nvidia-uvm")
+@@ -541,7 +562,7 @@ _unload_driver() {
+         rmmod_args+=("nvidia-peermem")
+         ((++nvidia_deps))
+     fi
+-    if [ ${nvidia_refs} -gt ${nvidia_deps} ] || [ ${nvidia_uvm_refs} -gt 0 ] || [ ${nvidia_modeset_refs} -gt 0 ] || [ ${nvidia_peermem_refs} -gt 0 ]; then
++    if [ ${nvidia_refs} -gt ${nvidia_deps} ] || [ ${nvidia_drm_refs} -gt 0 ] || [ ${nvidia_uvm_refs} -gt 0 ] || [ ${nvidia_modeset_refs} -gt 0 ] || [ ${nvidia_peermem_refs} -gt 0 ]; then
+         echo "Could not unload NVIDIA driver kernel modules, driver is in use" >&2
+         return 1
+     fi
+@@ -563,7 +584,7 @@ _install_driver() {
+     if [ "${ACCEPT_LICENSE}" = "yes" ]; then
+         install_args+=("--accept-license")
+     fi
+-    IGNORE_CC_MISMATCH=1 nvidia-installer --kernel-module-only --no-drm --ui=none --no-nouveau-check -m=${KERNEL_TYPE} ${install_args[@]+"${install_args[@]}"}
++    IGNORE_CC_MISMATCH=1 nvidia-installer --kernel-module-only --ui=none --no-nouveau-check -m=${KERNEL_TYPE} ${install_args[@]+"${install_args[@]}"}
+     # May need to add no-cc-check for Rhel, otherwise it complains about cc missing in path
+     # /proc/version and lib/modules/KERNEL_VERSION/proc are different, by default installer looks at /proc/ so, added the proc-mount-point
+     # TODO: remove the -a flag. its not needed. in the new driver version, license-acceptance is implicit
+@@ -953,4 +974,4 @@ if [ $# -ne 0 ]; then
+     usage
+ fi
+ 
+-$command
++$command
+\ No newline at end of file
