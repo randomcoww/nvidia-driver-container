@@ -65,39 +65,39 @@ jobs:
           --build-arg DRIVER_VERSION=$DRIVER_VERSION \
           --build-arg BASE_URL=$BASE_URL \
           --push-retry 3
-  build-drm:
-    needs:
-      - build
-    runs-on: arc-runner-${{ github.event.repository.name }}
-    container:
-      image: ghcr.io/randomcoww/kaniko:debug
-    permissions:
-      contents: read
-      packages: write
-    steps:
-    - name: Build and release container
-      run: |
-        mkdir -p $DOCKER_CONFIG
-        cat > $DOCKER_CONFIG/config.json <<EOF
-        {
-          "auths": {
-            "ghcr.io": {
-              "auth": "$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64 -w0)"
-            }
-          }
-        }
-        EOF
+  # build-drm:
+  #   needs:
+  #     - build
+  #   runs-on: arc-runner-${{ github.event.repository.name }}
+  #   container:
+  #     image: ghcr.io/randomcoww/kaniko:debug
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #   - name: Build and release container
+  #     run: |
+  #       mkdir -p $DOCKER_CONFIG
+  #       cat > $DOCKER_CONFIG/config.json <<EOF
+  #       {
+  #         "auths": {
+  #           "ghcr.io": {
+  #             "auth": "$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64 -w0)"
+  #           }
+  #         }
+  #       }
+  #       EOF
 
-        /kaniko/executor \
-          --dockerfile="drm.Containerfile" \
-          --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
-          --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-drm-fedora$FEDORA_VERSION" \
-          --build-arg BASE_IMAGE=ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION \
-          --push-retry 3
+  #       /kaniko/executor \
+  #         --dockerfile="drm.Containerfile" \
+  #         --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
+  #         --destination="ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-drm-fedora$FEDORA_VERSION" \
+  #         --build-arg BASE_IMAGE=ghcr.io/${{ github.repository }}:v$DRIVER_VERSION-fedora$FEDORA_VERSION \
+  #         --push-retry 3
   cleanup:
     needs:
       - build
-      - build-drm
+      # - build-drm
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
       image: docker.io/node:current-alpine
