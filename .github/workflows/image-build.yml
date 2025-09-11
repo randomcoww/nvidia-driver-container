@@ -31,14 +31,10 @@ jobs:
         echo BASE_URL=https://us.download.nvidia.com/XFree86/${TARGETARCH/x86_64/Linux-x86_64} | tee -a "$GITHUB_ENV"
         TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
 
-        JQ_VERSION=$(wget -O - https://api.github.com/repos/jqlang/jq/releases/latest | grep tag_name | cut -d '"' -f 4 | tr -d 'v')
-        wget -O jq https://github.com/jqlang/jq/releases/download/$JQ_VERSION/jq-linux-$TARGETARCH
-        chmod +x jq
-
-        GOLANG_VERSION=$(wget -O - https://api.github.com/repos/golang/go/git/refs/tags | ./jq -r 'last(.[] | select(.ref | startswith("refs/tags/go")) | select(.ref | contains("rc") | not)).ref' | tr -d "refs/tags/go")
+        GOLANG_VERSION=$(wget -O - https://api.github.com/repos/golang/go/git/refs/tags | jq -r 'last(.[] | select(.ref | startswith("refs/tags/go")) | select(.ref | contains("rc") | not)).ref' | tr -d "refs/tags/go")
         echo GOLANG_VERSION=$GOLANG_VERSION | tee -a "$GITHUB_ENV"
 
-        echo TAG=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | ./jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
+        echo TAG=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
         echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
 
     - name: Build and release container
