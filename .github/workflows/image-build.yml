@@ -62,3 +62,28 @@ jobs:
           --build-arg DRIVER_VERSION=$DRIVER_VERSION \
           --build-arg BASE_URL=$BASE_URL \
           --push-retry 3
+  cleanup:
+    needs:
+      - build
+    env:
+      TAGS_KEEP: 4
+    runs-on: arc-runner-${{ github.event.repository.name }}
+    container:
+      image: docker.io/regclient/regctl:alpine
+    steps:
+    - name: Remove old tags
+      run: |
+        regctl registry set $INTERNAL_REGISTRY --cacert "$INTERNAL_CA"
+        tags=$(regctl tag ls $INTERNAL_REGISTRY/${{ github.repository }} | sort -r)
+        set -- $tags
+
+        i=0
+        while [ "$i" -lt "$TAGS_KEEP" ]; do
+          shift
+          i=$((i + 1))
+        done
+
+        for tag in $@; do
+          echo "Delete $tag"
+          regctl tag delete --ignore-missing $INTERNAL_REGISTRY/${{ github.repository }}:$tag
+        done
