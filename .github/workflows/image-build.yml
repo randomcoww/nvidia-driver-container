@@ -36,7 +36,7 @@ jobs:
 
         # Use last tag as build version
         # This allows rebuilding driver without committing a new tag
-        echo DRIVER_VERSION=$(wget -O - https://api.github.com/repos/${{ github.repository }}/git/refs/tags | jq -r 'last(.[]).ref' | sed 's/refs\/tags\///')
+        echo DRIVER_VERSION=$(wget -O - https://api.github.com/repos/${{ github.repository }}/git/refs/tags | jq -r 'last(.[]).ref' | sed 's/refs\/tags\///') | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
         echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
 
