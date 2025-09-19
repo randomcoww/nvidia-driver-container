@@ -8,12 +8,6 @@ on:
   push:
     tags:
     - "*"
-  push:
-    paths-ignore:
-    - .github/**
-    - README.md
-    branches:
-    - master
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
