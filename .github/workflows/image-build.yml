@@ -5,9 +5,6 @@
 name: Image Build
 on:
   workflow_dispatch:
-  push:
-    tags:
-    - "*"
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -16,6 +13,7 @@ env:
   FEDORA_VERSION: 42
   # https://gitlab.com/container-toolkit-fcos/driver/-/blob/fedora-rebased-main/ci/fedora/.gitlab-ci-fcos.yml
   GOLANG_VERSION: 1.24.5
+  DRIVER_VERSION: 580.82.09
 
 jobs:
   build:
@@ -32,9 +30,6 @@ jobs:
         TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
         echo BRANCH=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
 
-        # Use last tag as build version
-        # This allows rebuilding driver without committing a new tag
-        echo DRIVER_VERSION=$(wget -O - https://api.github.com/repos/${{ github.repository }}/git/refs/tags | jq -r 'last(.[]).ref' | sed 's/refs\/tags\///') | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
         echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
 
