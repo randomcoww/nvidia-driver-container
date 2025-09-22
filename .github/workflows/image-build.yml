@@ -19,7 +19,7 @@ jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      image: registry.default/randomcoww/kaniko:latest
+      image: docker.io/martizih/kaniko:debug
     permissions:
       contents: read
     steps:
@@ -28,14 +28,17 @@ jobs:
         TARGETARCH=$(arch)
         echo BASE_URL=https://us.download.nvidia.com/XFree86/${TARGETARCH/x86_64/Linux-x86_64} | tee -a "$GITHUB_ENV"
         TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
-        echo BRANCH=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
 
+        JQ_VERSION=$(wget -O - https://api.github.com/repos/jqlang/jq/releases/latest | grep tag_name | cut -d '"' -f 4 | tr -d 'v')
+        wget -O /kaniko/jq https://github.com/jqlang/jq/releases/download/$JQ_VERSION/jq-linux-$TARGETARCH
+        chmod +x /kaniko/jq
+
+        echo BRANCH=$(wget -O - https://gitlab.com/api/v4/projects/container-toolkit-fcos%2Fdriver/repository/tags | jq -r 'first(.[] | select(.name | endswith("-fedora"))).name') | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
         echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
 
     - name: Build and release container
       run: |
-        mkdir -p $DOCKER_CONFIG
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
           "auths": {
@@ -47,7 +50,7 @@ jobs:
         EOF
         echo -e "$INTERNAL_CA_CERT" > $DOCKER_CONFIG/internal.crt
 
-        /kaniko/executor \
+        executor \
           --context-sub-path="fedora" \
           --dockerfile="./Dockerfile" \
           --context="git://gitlab.com/container-toolkit-fcos/driver.git#$BRANCH" \
