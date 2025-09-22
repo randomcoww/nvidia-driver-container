@@ -14,6 +14,7 @@ env:
   # https://gitlab.com/container-toolkit-fcos/driver/-/blob/fedora-rebased-main/ci/fedora/.gitlab-ci-fcos.yml
   GOLANG_VERSION: 1.24.5
   DRIVER_VERSION: 580.82.09
+  FF_KANIKO_SQUASH_STAGES: true # https://github.com/mzihlmann/kaniko/pull/141
 
 jobs:
   build:
@@ -25,6 +26,7 @@ jobs:
     steps:
     - name: Set tag
       run: |
+        set -e
         TARGETARCH=$(arch)
         echo BASE_URL=https://us.download.nvidia.com/XFree86/${TARGETARCH/x86_64/Linux-x86_64} | tee -a "$GITHUB_ENV"
         TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
